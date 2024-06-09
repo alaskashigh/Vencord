@@ -28,6 +28,7 @@ import { Alerts, Menu, Parser, useState } from "@webpack/common";
 import { Guild, User } from "discord-types/general";
 
 import { Auth, initAuth, updateAuth } from "./auth";
+import { NicknameIcon } from "./components/NickNameIcon";
 import { openReviewsModal } from "./components/ReviewModal";
 import ReviewsView from "./components/ReviewsView";
 import { NotificationType } from "./entities";
@@ -78,6 +79,13 @@ export default definePlugin({
             replacement: {
                 match: /user:(\i),setNote:\i,canDM.+?\}\)/,
                 replace: "$&,$self.getReviewsComponent($1)"
+            }
+        },
+        {
+            find: "autoFocusNote:!0})",
+            replacement: {
+                match: /autoFocusNote:!0\}\)\}\)(?<=(user:\i,isHovering:\i).{0,50}?)/,
+                replace: "$&,$self.NicknameIcon({ $1 })"
             }
         }
     ],
@@ -135,6 +143,8 @@ export default definePlugin({
             }
         }, 4000);
     },
+
+    NicknameIcon: ErrorBoundary.wrap(NicknameIcon, { noop: true }),
 
     getReviewsComponent: ErrorBoundary.wrap((user: User) => {
         const [reviewCount, setReviewCount] = useState<number>();
